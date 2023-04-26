@@ -1,3 +1,5 @@
+/* eslint-disable lines-between-class-members */
+/* eslint-disable react/destructuring-assignment */
 import {
   Box,
   Center,
@@ -8,22 +10,14 @@ import {
   useColorModeValue,
   Button,
 } from '@chakra-ui/react';
+import CreditCard from './CreditCard';
 
-class CreditCard {
-  name: string;
-
-  currentBalance: number;
-
-  pendingCharges: number;
-
-  constructor(name: string, currentBalance: number, pendingCharges: number) {
-    this.name = name;
-    this.currentBalance = currentBalance;
-    this.pendingCharges = pendingCharges;
-  }
+class AddCardButtonProps {
+  addCardCallback!: () => void;
+  removeCardCallback!: () => void;
 }
 
-function AddCardButton() {
+function AddCardButton(props: AddCardButtonProps) {
   const handleAddCard = () => {
     const newCardName = document.getElementById(
       'add-card-name-input'
@@ -34,7 +28,6 @@ function AddCardButton() {
         window.DataStore.store.get('credit-cards');
 
       if (currentCreditCardsString === '') {
-        console.log('Empty string');
         const CreditCardsObjectToInstantiate = {
           creditCards: [cardToAdd],
         };
@@ -43,7 +36,6 @@ function AddCardButton() {
           JSON.stringify(CreditCardsObjectToInstantiate)
         );
       } else {
-        console.log('Not empty');
         const currentCreditCardsObject = JSON.parse(currentCreditCardsString);
         const creditCardsList =
           currentCreditCardsObject.creditCards as Array<CreditCard>;
@@ -53,23 +45,19 @@ function AddCardButton() {
           'credit-cards',
           JSON.stringify(currentCreditCardsObject)
         );
-        console.log(window.DataStore.store.get('credit-cards'));
       }
+      props.addCardCallback();
     }
-  };
-
-  const handleGetCards = () => {
-    const creditCardsString = window.DataStore.store.get('credit-cards');
-    console.log(creditCardsString);
   };
 
   const handleResetCards = () => {
     window.DataStore.store.set('credit-cards', '');
+    props.removeCardCallback();
   };
+
   return (
-    <Center p={6}>
+    <Center p={8}>
       <Box
-        w="6xl"
         bg={useColorModeValue('white', 'gray.900')}
         boxShadow="xl"
         rounded="lg"
@@ -86,7 +74,7 @@ function AddCardButton() {
           <Input size="lg" variant="filled" id="add-card-name-input" />
         </HStack>
         <Button onClick={handleAddCard}> Add New Card </Button>
-        <Button onClick={handleGetCards} my={4}>
+        <Button onClick={handleResetCards} my={4}>
           Get Cards
         </Button>
         <Button onClick={handleResetCards} my={4}>

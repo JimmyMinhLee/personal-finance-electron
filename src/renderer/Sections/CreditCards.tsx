@@ -14,49 +14,59 @@ import {
 } from '@chakra-ui/react';
 import { electron } from 'process';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddCardButton from 'renderer/Components/AddCardButton';
+import CreditCard from 'renderer/Components/CreditCard';
 import CreditCardCard from 'renderer/Components/CreditCardCard';
 
 const CreditCards = (props: any) => {
   const [numCards, setNumCards] = useState(0);
+  let creditCardsToRender = <div />;
 
-  const setNumberOfCards = () => {
-    const numberOfCards = document.getElementById('number-of-cards');
-    window.DataStore.store.set('credit-cards', numberOfCards!.value);
+  const addCardCallback = () => {
+    setNumCards(numCards + 1);
   };
 
-  const getNumberOfCards = () => {
-    const heading = document.getElementById('number-of-cards-in-data-store');
-    setNumCards(window.DataStore.store.get('credit-cards'));
+  const removeCardCallback = () => {
+    setNumCards(0);
   };
+
+  useEffect(() => {}, [numCards]);
+
+  const allCreditCards = window.DataStore.store.get('credit-cards');
+  if (allCreditCards !== '') {
+    const listOfCreditCards = JSON.parse(allCreditCards);
+    creditCardsToRender = listOfCreditCards.creditCards.map(
+      (cardObject: CreditCard) => (
+        <li key={cardObject.name}>
+          <CreditCardCard cardName={cardObject.name} />
+        </li>
+      )
+    );
+  }
 
   return (
-    <Box w="3xl" boxShadow="3xl" p={6}>
+    <Container p={6}>
       <Center p={6}>
         <Box
           maxW="lg"
           w="2xl"
           boxShadow="2xl"
           rounded="lg"
-          textAlign="center"
           bg={useColorModeValue('white', 'gray.900')}
           p={6}
         >
           <Heading fontSize="2xl" fontFamily="body">
             Credit Cards
           </Heading>
-          <HStack py={4}>
-            <Heading fontSize="xl" mx={4}>
-              Total Balance
-            </Heading>
-            <Input size="lg" variant="filled" />
-          </HStack>
-          <Button my={4}> Calculate </Button>
-          <AddCardButton />
+          <VStack py={4}>{creditCardsToRender}</VStack>
+          <AddCardButton
+            addCardCallback={addCardCallback}
+            removeCardCallback={removeCardCallback}
+          />
         </Box>
       </Center>
-    </Box>
+    </Container>
   );
 };
 
